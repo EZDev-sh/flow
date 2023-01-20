@@ -60,13 +60,12 @@ extension AlbumListVC {
         
         userAlbums.enumerateObjects { obj, index, stop in
             if let albumName = obj.localizedTitle {
-                var thumbnail = UIImage()
-                
                 let imageMgr = PHImageManager()
                 
                 let imageRequestOpt = PHImageRequestOptions()
                 imageRequestOpt.isSynchronous = true
                 imageRequestOpt.deliveryMode = .highQualityFormat
+                
                 
                 
                 let photoInAlbum = PHAsset.fetchAssets(in: obj, options: fetchOptions)
@@ -78,6 +77,9 @@ extension AlbumListVC {
                                               thumbnail: nil,
                                               pictures: [])
                     for i in 0..<photoInAlbum.count {
+                        let resource = PHAssetResource.assetResources(for: photoInAlbum.object(at: i))
+                        let fileName = resource.first?.originalFilename
+                        
                         imageMgr.requestImage(for: photoInAlbum.object(at: i) , targetSize: CGSize(width: 70, height: 70), contentMode: .aspectFit, options: imageRequestOpt, resultHandler: { image, error in
 
                             if let getImage = image {
@@ -86,6 +88,7 @@ extension AlbumListVC {
                                 }
                                 
                                 newAlbum.pictures.append(getImage)
+                            
                                 
                             }
                         })
@@ -105,7 +108,6 @@ extension AlbumListVC {
 extension AlbumListVC: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
                 return albums.count
-//        return 5
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -129,6 +131,9 @@ extension AlbumListVC: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let model = albums[indexPath.row]
         
-        debugPrint(model)
+        let pictureList = PictureListVC()
+        pictureList.albumModel = model
+        
+        navigationController?.pushViewController(pictureList, animated: true)
     }
 }
